@@ -145,6 +145,8 @@
   file:
     path: /home/ubuntu/.kube/config
     state: touch
+    owner: ubuntu
+    group: ubuntu
 - name: Copy file from /etc/kubernetes/admin.conf to /home/ubuntu/.kube/config
   copy:
     src: /etc/kubernetes/admin.conf
