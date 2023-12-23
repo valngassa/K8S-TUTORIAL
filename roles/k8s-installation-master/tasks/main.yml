@@ -9,7 +9,9 @@
   shell: 
     hostnamectl set-hostname  master && 
     bash
-
+- name: RUN BASH 
+  shell: 
+    bash
 - name: adding a new line
   lineinfile:
     path: /etc/hosts
