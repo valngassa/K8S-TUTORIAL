@@ -1,0 +1,131 @@
+---
+# tasks file for k8s-installation-master
+- name: Update all packages to their latest version
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+- name: UPDATING HOSTNAME to node
+  shell: 
+    hostnamectl set-hostname  node && 
+    bash
+- name: RUN BASH 
+  shell: 
+    bash
+- name: adding a new line
+  lineinfile:
+    path: /etc/hosts
+    line: '{{ private_ip_of_master_server }} node'
+
+- name: Create a file containerd.conf in /etc/modules-load.d/
+  file:
+    path: /etc/modules-load.d/containerd.conf
+    state: touch
+
+- name: ADDING LINES to containerd.conf
+  lineinfile:
+    dest: /etc/modules-load.d/containerd.conf
+    line: '{{ item }}'
+  with_items:
+    - 'overlay'
+    - 'br_netfilter'
+- name: Add the  module
+  community.general.modprobe:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - 'overlay'
+    - 'br_netfilter'
+
+- name: Create a file kubernetes.conf in /etc/sysctl.d/
+  file:
+    path: /etc/sysctl.d/kubernetes.conf
+    state: touch
+
+- name: ADDING LINES to containerd.conf
+  lineinfile:
+    dest: /etc/sysctl.d/kubernetes.conf
+    line: '{{ item }}'
+  with_items:
+    - 'net.bridge.bridge-nf-call-ip6tables = 1'
+    - 'net.bridge.bridge-nf-call-iptables = 1'
+    - 'net.ipv4.ip_forward = 1'
+
+- name: Reload the system changes
+  shell:
+    sudo sysctl --system
+- name: INSTALLING REQUIRED PACKAGES
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - curl
+    - gnupg2
+    - software-properties-common
+    - apt-transport-https
+    - ca-certificates
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+- name: Add Docker APT repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+
+- name: Update all packages to their latest version
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Install containerd.io
+  apt:
+    pkg:
+    - containerd.io
+- name: Configure containerd 
+  shell:
+    containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1
+- name: Replace line in fiel /etc/containerd/config.toml
+  lineinfile:
+    path: /etc/containerd/config.toml
+    regex: '^(.*)SystemdCgroup(.*)$'
+    line: '            SystemdCgroup = true'
+    backrefs: yes
+- name: Start contanierd
+  service:
+   name: containerd
+   state: restarted
+   enabled: yes
+
+- name: Add GPG key for k8s
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+- name: Add Docker APT repository
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+
+- name: Update all packages to their latest version
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+- name: INSTALLING REQUIRED PACKAGES
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - kubelet
+    - kubeadm
+    - kubectl
+- name:  prevent the package from being automatically installed
+  dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  with_items:
+    - kubelet
+    - kubeadm
+    - kubectl
+- name: Start contanierd
+  service:
+   name: '{{ item  }}'
+   state: restarted
+  with_items:
+    - containerd
+    - kubelet
