@@ -128,14 +128,13 @@
     - kubeadm
     - kubectl
 
-      #- name: showing output
-      #  shell:
-      #    uptime
-      #  register:
-      #    ps
-      #  debug:
-      #    var:
-      #      ps.stdout_lines
+- name : Runing kubeadm init
+  shell: kubeadm init
+  register: command_output
+- name: Display the token for join nade to master
+  debug:
+    var: command_output.stdout_lines[69]
+
 - name : Runing kubeadm init
   shell:
     kubeadm init
