@@ -305,7 +305,3 @@ systemctl restart containerd.service
 systemctl restart kubelet.service
 
 kubeadm join 172.31.30.204:6443 --token 3wlx43.ywbkejz8i6ykqaq5         --discovery-token-ca-cert-hash sha256:61efea6ac21c569738edf5bbdcda5a13ef4783a52c3f8d8226313638ced0f0e3
-
-Install Pod Network addon:
-
-curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml -O
