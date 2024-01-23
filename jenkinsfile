@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('CHeck out the code') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Ashfaque-9x/a-youtube-clone-app.git']])
+            }
+        }
+        stage("KUBECTL INSTALL"){
+            steps {
+            sh """
+            pwd
+            ls -l
+            who am i
+            """
+            }
+        }
+        stage("KUBERNETES COMMAND"){
+            steps{
+                dir('Kubernetes'){
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'config', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                        sh 'kubectl get all'
+                    }
+                }
+            }
+        }
+    }
+}
