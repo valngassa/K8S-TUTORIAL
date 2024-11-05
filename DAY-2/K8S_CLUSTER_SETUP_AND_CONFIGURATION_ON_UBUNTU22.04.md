@@ -8,7 +8,8 @@ bash
 
 cat /etc/hosts
 
-<PRIVATE_IP_OF_THE_SERVER> node
+vi etc/host
+add  <PRIVATE_IP_OF_THE_SERVER> master
 
 sudo apt-get update && apt-get upgrade -y
 
