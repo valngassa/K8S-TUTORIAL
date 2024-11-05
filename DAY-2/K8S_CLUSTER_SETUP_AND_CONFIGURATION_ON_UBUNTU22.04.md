@@ -129,6 +129,8 @@ sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/c
 
 sudo systemctl restart containerd
 
+sudo systemctl status containerd
+
 sudo systemctl enable containerd
 
 ###################################################################################################
